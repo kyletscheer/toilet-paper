@@ -1,133 +1,1477 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Toilet Paper Truth Finder</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css"
+      rel="stylesheet"
+    />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;900&family=Fredoka:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --tp-brown: #8b4513;
+        --tp-cream: #fff8dc;
+        --tp-white: #fefefe;
+        --tp-danger: #dc3545;
+        --tp-success: #28a745;
+      }
 
-<head>
-  <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-9L66K09FJ0"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() { dataLayer.push(arguments); }
-    gtag('js', new Date());
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-    gtag('config', 'G-9L66K09FJ0');
-  </script>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="Finally answering the question, how much toilet paper do I really have left?">
-  <meta name="author" content="Kyle Scheer">
-  <title>The Toilet Paper Truth Finder</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-    integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
-    crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
-    integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
-    crossorigin="anonymous"></script>
-  <!-- Bootstrap CSS -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Bootstrap Icons -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css"
-    rel="stylesheet">
-  <link href="style.css" rel="stylesheet">
+      body {
+        font-family: "Nunito", sans-serif;
+        background-image: url("wall_tiles.webp");
+        background-repeat: repeat;
+        background-size: 256px 256px; /* adjust depending on tile size */
+        background-color: #fafafa; /* fallback color */
+        min-height: 100vh;
+        overflow-x: hidden;
+        position: relative;
+        padding: 0;
+      }
+      /* Headings → playful, bold, toilet-paper branding feel */
+h1, h2, h3, h4, h5, h6,
+.hero-title,
+.calculator-header h2,
+.tp-section.hero .hero-title,
+.btn-primary-tp,
+.btn-calculate,
+.tab-btn,
+.percentage-display {
+  font-family: "Fredoka", sans-serif !important;
+}
 
-  <style>
-  </style>
-</head>
+/* Optional: captions stay soft-body style */
+figcaption,
+.footer,
+.article-content {
+  font-family: "Nunito", sans-serif;
+}
+      .tp-sheet-container {
+        position: relative;
+        width: min(700px, 90%);
+        margin: 0 auto;
+        padding: 40px;
+        background: #fff;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        overflow: visible;
+      }
 
-<body>
-  <!-- Navigation -->
-  <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
-    <div class="container">
-      <a class="navbar-brand fw-bold" href="index.html">The Toilet Paper Truth Finder</a>
-      <!-- Navbar actions container for mobile -->
-      <div class="navbar-actions">
-        <!-- Theme toggle moved outside collapse -->
-        <div class="theme-toggle" id="themeToggle" role="button" aria-label="Toggle theme">
-          <i class="bi bi-sun-fill"></i>
-        </div>
+      .tp-sheet-container::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: url("tp-pattern.webp");
+        background-size: 300px 300px;
+        background-repeat: repeat;
+        opacity: 0.7;
+        z-index: 1;
+        pointer-events: none;
+      }
 
-        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
-          aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
+      .tp-content {
+        position: relative;
+        z-index: 2;
+      }
+
+      .tp-frayed-edge {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -400px; /* small overlap outside the container */
+        height: 459px; /* set to actual frayed image height or tweak to taste */
+        z-index: 3;
+
+        background-image: url("tp-frayed.png");
+        background-repeat: no-repeat; /* single image */
+        background-position: center bottom;
+        background-size: 100% auto; /* scale width to container */
+
+        /* subtle shadow to create a sense of depth */
+        filter: drop-shadow(0 -8px 12px rgba(0, 0, 0, 0.08));
+        pointer-events: none;
+      }
+      /* Perforation Line */
+      .perforation {
+        position: relative;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: calc(100% + 80px);
+        margin-left: -40px;
+        margin-right: -40px;
+      }
+
+      .perforation::before {
+        content: "";
+        position: absolute;
+        width: 100%;
+        height: 2px;
+        background: repeating-linear-gradient(
+          to right,
+          #999 0px,
+          #999 10px,
+          transparent 10px,
+          transparent 20px
+        );
+        top: 50%;
+        transform: translateY(-50%);
+      }
+
+      .perforation::after {
+        content: "✂️";
+        position: absolute;
+        right: 20px;
+        font-size: 1.2rem;
+        animation: scissors 3s ease-in-out infinite;
+      }
+
+      @keyframes scissors {
+        0%,
+        100% {
+          transform: translateX(0) rotate(0deg);
+        }
+        50% {
+          transform: translateX(-5px) rotate(-10deg);
+        }
+      }
+
+      /* Sections on the toilet paper */
+      .tp-section {
+        padding: 1rem 2rem;
+        position: relative;
+      }
+
+      .tp-section.hero {
+        padding: 4rem 2rem;
+        text-align: center;
+      }
+
+      .tp-emoji {
+        font-size: 5rem;
+        animation: spin 3s ease-in-out infinite;
+        display: inline-block;
+        margin-bottom: 1rem;
+      }
+
+      @keyframes spin {
+        0%,
+        100% {
+          transform: rotate(0deg);
+        }
+        25% {
+          transform: rotate(-10deg);
+        }
+        75% {
+          transform: rotate(10deg);
+        }
+      }
+
+      .hero-title {
+        font-size: clamp(2rem, 6vw, 3.5rem);
+        font-weight: 900;
+        margin-bottom: 1rem;
+        color: #333;
+        line-height: 1.2;
+      }
+
+      .hero-subtitle {
+        font-size: clamp(1.1rem, 3vw, 1.5rem);
+        margin-bottom: 2rem;
+        color: #555;
+      }
+
+      .btn-primary-tp {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        padding: 1rem 2.5rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        text-decoration: none;
+        display: inline-block;
+        transition: transform 0.3s, box-shadow 0.3s;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      }
+
+      .btn-primary-tp:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        color: white;
+      }
+
+      /* Article Section */
+      .article-content {
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #333;
+      }
+
+      .article-content h2 {
+        color: var(--tp-brown);
+        margin: 2rem 0 1rem;
+        font-weight: 700;
+        font-size: 2rem;
+      }
+
+      .article-content p {
+        margin-bottom: 1.5rem;
+      }
+
+      .article-content strong {
+        color: #000;
+      }
+
+      .bidet-note {
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        border-left: 4px solid #2196f3;
+        padding: 1.5rem;
+        margin: 2rem 0;
+        border-radius: 10px;
+        font-style: italic;
+        font-size: 1.1rem;
+      }
+
+      /* Calculator Section */
+      .tp-section.calculator {
+        padding: 3rem 2rem;
+      }
+
+      .calculator-header {
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+
+      .calculator-header h2 {
+        color: var(--tp-brown);
+        font-weight: 900;
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .tab-switcher {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+      }
+
+      .tab-btn {
+        flex: 1;
+        min-width: 200px;
+        padding: 1rem;
+        border: 3px solid #667eea;
+        background: white;
+        border-radius: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+        color: #667eea;
+        font-size: 1rem;
+      }
+
+      .tab-btn:hover {
+        background: rgba(102, 126, 234, 0.1);
+      }
+
+      .tab-btn.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      }
+
+      .calculator-mode {
+        display: none;
+      }
+
+      .calculator-mode.active {
+        display: block;
+      }
+
+      .calculator-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        align-items: start;
+      }
+
+      @media (max-width: 768px) {
+        .calculator-layout {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .brand-preset {
+        background: rgba(102, 126, 234, 0.05);
+        border-radius: 12px;
+        padding: 1.2rem;
+        margin: 1rem 0;
+        border: 2px solid rgba(102, 126, 234, 0.2);
+      }
+
+      .form-label {
+        color: #333;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        font-size: 1rem;
+      }
+
+      .form-control,
+      .form-select {
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        padding: 0.75rem;
+        transition: border-color 0.3s;
+        background: white;
+        font-size: 1rem;
+      }
+
+      .form-control:focus,
+      .form-select:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        outline: none;
+      }
+
+      .percentage-slider {
+        margin: 1.5rem 0;
+      }
+
+      .percentage-display {
+        text-align: center;
+        font-size: 2.5rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin: 1rem 0;
+      }
+
+      .percentage-scale {
+        width: 100%;
+        height: 50px;
+        background: linear-gradient(
+          to right,
+          #dc3545 0%,
+          #ffc107 50%,
+          #28a745 100%
+        );
+        border-radius: 25px;
+        position: relative;
+        margin: 1rem 0;
+        box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      .scale-marker {
+        position: absolute;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 24px;
+        height: 24px;
+        background: white;
+        border: 4px solid #333;
+        border-radius: 50%;
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.4);
+        transition: left 0.3s ease;
+        z-index: 10;
+      }
+
+      .scale-labels {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.95rem;
+        color: #666;
+        font-weight: 600;
+        padding: 0.5rem 0.5rem 0;
+      }
+
+      input[type="range"] {
+        width: 100%;
+        height: 10px;
+        border-radius: 5px;
+        background: #ddd;
+        outline: none;
+        -webkit-appearance: none;
+        appearance: none;
+        margin: 1rem 0;
+      }
+
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        cursor: pointer;
+        box-shadow: 0 3px 12px rgba(102, 126, 234, 0.6);
+      }
+
+      input[type="range"]::-moz-range-thumb {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        cursor: pointer;
+        box-shadow: 0 3px 12px rgba(102, 126, 234, 0.6);
+        border: none;
+      }
+
+      .btn-calculate {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        padding: 1.2rem 2rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 1.2rem;
+        transition: transform 0.3s, box-shadow 0.3s;
+        width: 100%;
+        cursor: pointer;
+        margin-top: 1rem;
+      }
+
+      .btn-calculate:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+      }
+
+      .result-box {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+        color: white;
+        font-weight: 600;
+        box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+      }
+
+      .result-box h4 {
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+      }
+
+      /* Visual Container */
+      .visual-container {
+        text-align: center;
+      }
+
+      .visual-container h4 {
+        color: #333;
+        margin-bottom: 1rem;
+        font-weight: 700;
+      }
+
+      .tp-visual {
+        position: relative;
+        width: 280px;
+        height: 280px;
+        margin: 0 auto;
+        background: #2c3e50;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+      }
+
+      .tp-circle {
+        position: absolute;
+        border-radius: 50%;
+        transition: all 0.5s ease;
+      }
+
+      .tp-full {
+        background: white;
+        box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .tp-current {
+        background: transparent;
+        border: 4px dashed #f5576c;
+        box-shadow: 0 0 25px rgba(245, 87, 108, 0.6);
+      }
+
+      .tp-tube {
+        background: var(--tp-brown);
+        box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.4);
+      }
+
+      .live-indicator {
+        color: #28a745;
+        font-size: 0.9rem;
+        margin-top: 1rem;
+        font-weight: 600;
+      }
+
+      .live-indicator::before {
+        content: "●";
+        color: #28a745;
+        margin-right: 0.5rem;
+        animation: pulse 2s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.3;
+        }
+      }
+
+      /* images */
+      .tp-image {
+        margin: 2rem auto;
+        text-align: center;
+        max-width: 400px; /* matches your original max width */
+      }
+
+      .tp-image img {
+        width: 100%;
+        border-radius: 20px;
+        display: block;
+      }
+
+      .tp-image figcaption {
+        margin-top: 0.6rem;
+        font-size: 0.95rem;
+        color: #666;
+        font-style: italic;
+        line-height: 1.4;
+      }
+      /* Footer  */
+      .footer {
+        text-align: center;
+        padding: 40px 20px;
+        padding-top: 300px;
+        margin-top: 180px;
+        color: #030303;
+        font-size: 0.95rem;
+        border-top: 1px solid #e0e0e0;
+        min-height: 300px;
+        background-image: url("kittynobgbig.png");
+        background-repeat: no-repeat; /* prevent tiling */
+        background-size: cover; /* make image cover the whole container */
+        background-position: center center;
+      }
+
+      .footer p {
+        margin: 8px 0;
+      }
+
+      .footer a {
+        color: #000000;
+        transition: color 0.2s ease;
+      }
+
+      .footer a:hover {
+        color: #444;
+      }
+
+      .footer img {
+        margin-top: 12px;
+        display: inline-block;
+      }
+
+      /* Diagram SVG */
+      .diagram-container {
+        text-align: center;
+        margin: 2rem 0;
+        padding: 1rem;
+        border-radius: 15px;
+      }
+
+      .mb-3 {
+        margin-bottom: 1rem;
+      }
+
+      .mt-3 {
+        margin-top: 1rem;
+      }
+      /* Mobile-friendly adjustments for content inside tp-sheet-container */
+      @media (max-width: 768px) {
+        .tp-sheet-container {
+          /* Keep container width the same */
+          width: min(700px, 90%);
+          /* Reduce padding so inner content can expand */
+          padding: 15px 20px;
+        }
+
+        .tp-section {
+          padding: 2rem 1rem; /* reduce section padding inside container */
+        }
+
+        .tp-section.hero {
+          padding: 3rem 1rem;
+        }
+
+        .tp-frayed-edge {
+          bottom: -250px; /* smaller overlap for mobile */
+          height: 300px; /* scale frayed edge image */
+        }
+
+        .tp-emoji {
+          font-size: 4rem; /* slightly smaller emoji */
+        }
+
+        .hero-title {
+          font-size: clamp(1.8rem, 7vw, 3rem);
+        }
+
+        .hero-subtitle {
+          font-size: clamp(1rem, 4vw, 1.3rem);
+        }
+
+        .perforation {
+          width: calc(100% + 40px);
+          margin-left: -20px;
+          margin-right: -20px;
+        }
+
+        .calculator-layout {
+          grid-template-columns: 1fr; /* keep single-column layout on mobile */
+        }
+
+        .tp-visual {
+          width: 220px;
+          height: 220px; /* scale visual container */
+        }
+        .footer {
+          padding-top: 200px;
+          min-height: 200px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Main Toilet Paper Sheet -->
+    <div class="tp-sheet-container">
+      <div class="tp-frayed-edge" aria-hidden="true"></div>
+      <div class="tp-content">
+        <!-- Hero Section -->
+        <section class="tp-section hero">
+          <div class="tp-emoji">🧻</div>
+          <h1 class="hero-title">Your Toilet Paper<br />is LYING to You</h1>
+          <p class="hero-subtitle">Stop the deception. Find the truth.</p>
+          <a href="#story" class="btn-primary-tp">Uncover the Conspiracy</a>
+        </section>
       </div>
+      <!-- Perforation -->
+      <div class="perforation"></div>
+      <div class="tp-content">
+        <!-- Story Section -->
+        <section id="story" class="tp-section">
+          <div class="article-content">
+            <h2>Picture This</h2>
+            <p>
+              You are in the bathroom, sitting on the toilet right now. You look
+              to your side. You see it. The toilet paper. Resting there on the
+              holder, acting all innocent.
+            </p>
+            <figure class="tp-image">
+              <img src="roll.webp" alt="Toilet Paper Roll" />
+              <figcaption>
+                I looked up “ominous toilet paper” but nothing could top this.
+              </figcaption>
+            </figure>
+            <p>
+              You notice the toilet paper is about halfway gone. "Time to buy
+              some more," you think. <strong>BUT IS IT?</strong>
+            </p>
 
-      <div class="collapse navbar-collapse" id="navbarContent">
-        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-          <li class="nav-item">
-            <a class="nav-link" href="index.html">Home</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="explanation.html">Explanation</a>
-          </li>
-        </ul>
+            <p>
+              For you see, the toilet paper doesn't want to be replaced. It
+              wants you to wait until the very last second before getting more.
+              <strong>It is lying to you, and you don't even know it.</strong>
+            </p>
+          </div>
+        </section>
       </div>
-    </div>
-  </nav>
-  <!-- Page Content -->
-  <main class="py-5">
-    <div class="container">
-      <h6><i>This website was made with a specific purpose.</i></h6>
-      <h1 class="fw-bold">Stop the toilet paper lies.</h1>
-      <a href="https://kyletscheer.medium.com/your-toilet-paper-is-lying-to-you-c7a360fecacc" target="_blank">Your
-        toilet paper is lying to you.</a> Use the tool below to find the truth.<br>
-      <form id="myForm" onsubmit="validateForm(event)">
-        <br>
-        <table>
-          <tr>
-            <td>% of toilet paper you want left (usually .5 or 50%):</td>
-            <td><input type="number" step="0.01" placeholder="decimal from 0-1" id="yVal" name="yVal"
-                style="width:200px" max="1" min="0"></td>
-          </tr>
-          <tr>
-            <td>Diameter of NEW toilet paper:</td>
-            <td><input type="number" step="0.01" placeholder="decimals or integers only" style="width:200px" id="aVal"
-                name="aVal"></td>
-          </tr>
-          <tr>
-            <td>Diameter of inner tube:</td>
-            <td><input type="number" step="0.01" placeholder="decimals or integers only" style="width:200px" id="bVal"
-                name="bVal"></td>
-          </tr>
-        </table>
-        <i>Note: Inner tube diameter can't be more than toilet paper diameter</i>
-        <br><br>
-        <input value="Find the Truth" type="button" onclick="validateForm(event)">
-      </form>
-      <p id="error-message" style="display: none; color: red;"></p>
-      <br><br>
-      <div id="results">
-        <div id="result"></div>
-        <br><br>
-        <br>
-        <div class="row" id="visual">
-          <h2>A visual of the toilet paper.</h2>
-          <div class="col-md-4">
-            <div class="visual" style="text-align: center;">
-              <span class="background"><span class="whole"><span class="midpoint"><span
-                      class="tube"></span></span></span></span>
+      <div class="perforation"></div>
+      <div class="tp-content">
+        <section class="tp-section">
+          <div class="article-content">
+            <h2>The Revelation</h2>
+            <p>
+              But luckily, if you take that toilet paper, and look through the
+              cardboard, you will see there is a light at the end of the tunnel.
+            </p>
+            <figure class="tp-image">
+              <img src="vision.webp" alt="Vision through Toilet Paper Roll" />
+              <figcaption>
+                I would like to thank the human race for making this thing of
+                beauty.
+              </figcaption>
+            </figure>
+          </div>
+        </section>
+      </div>
+      <div class="perforation"></div>
+      <div class="tp-content">
+        <section class="tp-section">
+          <div class="article-content">
+            <h2>The Illusion</h2>
+            <p>
+              When you look at a toilet paper roll, you probably think the
+              halfway point looks something like this:
+            </p>
+            <figure class="tp-image">
+              <img
+                src="halfway.webp"
+                alt="Halfway Toilet Paper Roll Illusion"
+              />
+              <figcaption>
+                Look into the depths of the toilet paper, and you will see
+                yourself as you truly are.
+              </figcaption>
+            </figure>
+
+            <p>
+              It makes sense. Halfway down the toilet paper roll, it sure seems
+              half of the toilet paper has been used.
+              <strong>BUT IT'S A LIE.</strong>
+            </p>
+          </div>
+        </section>
+      </div>
+      <div class="perforation"></div>
+
+      <div class="tp-content">
+        <section class="tp-section">
+          <div class="article-content">
+            <h2>The Mathematical Truth</h2>
+            <p>
+              The truth is, finding the actual center point requires some
+              serious skills. Skills that you can only learn after a lifetime of
+              intensive pooping. But I didn't have time for that, so I just made
+              an equation to figure it out myself. So without further ado(uce),
+              here is The Answer:
+            </p>
+            <figure class="tp-image">
+              <img src="equation.webp" alt="Toilet Paper Equation" />
+              <figcaption>
+                Please keep reading. I know you don’t want to, but please.
+              </figcaption>
+            </figure>
+          </div>
+        </section>
+      </div>
+      <div class="perforation"></div>
+      <div class="tp-content">
+        <section class="tp-section">
+          <div class="article-content">
+            <h2>Wait, what?</h2>
+            <p>Yeah, we need to break that down, no laxative needed.</p>
+            <p>So let’s start by defining our variables:</p>
+            <ul>
+              <li>a = diameter of entire toilet paper</li>
+              <li>b = diameter of inner tube</li>
+              <li>
+                y = 1/amount you are looking for left (so since we are looking
+                for half of the toilet paper used, y is going to be 2)
+              </li>
+            </ul>
+            <figure class="tp-image">
+              <img
+                src="support.webp"
+                alt="Toilet Paper Equation Supporting Image"
+              />
+              <figcaption>
+                I used y as the variable because the letter itself is a
+                question.
+              </figcaption>
+            </figure>
+          </div>
+        </section>
+      </div>
+      <div class="perforation"></div>
+      <div class="tp-content">
+        <section class="tp-section">
+          <div class="article-content">
+            <p>
+              Now, that we have our variables, we can start breaking down the
+              equation. The first equation we need is finding the area of a
+              circle from the diameter. This is the below:
+            </p>
+            <figure class="tp-image">
+              <img src="area_equation.webp" alt="Area of Circle Equation" />
+              <figcaption>
+                “Why not just use radius instead, so you don’t need to divide by
+                two?” You try finding the center point of a toilet paper roll
+                sometime and get back to me about that.
+              </figcaption>
+            </figure>
+          </div>
+        </section>
+      </div>
+      <div class="perforation"></div>
+      <div class="tp-content">
+        <section class="tp-section">
+          <div class="article-content">
+            <p>
+              But toilet paper isn’t a normal circle. There is a second big
+              circle smack dab in the middle of it. Therefore, we need to figure
+              out the area of the circle that actually has toilet paper, which
+              is just the bigger circle area minus the little circle area.
+            </p>
+            <figure class="tp-image">
+              <img src="donut_equation.webp" alt="Area of Circle Equation" />
+              <figcaption>This is also the equation for a donut.</figcaption>
+            </figure>
+            <p>
+              We now need to find half of that area to find the halfway point of
+              toilet paper use (this is where the 2 in the denominator is taking
+              the place of the y variable).
+            </p>
+            <figure class="tp-image">
+              <img src="donut_half.webp" alt="Area of Circle Equation" />
+              <figcaption>
+                I feel like I’m insulting your intelligence with this equation
+                explainer
+              </figcaption>
+            </figure>
+          </div>
+        </section>
+      </div>
+      <div class="perforation"></div>
+      <div class="tp-content">
+        <section class="tp-section">
+          <div class="article-content">
+            <p>
+              But we aren’t trying to find the area. We are trying to find the
+              diameter of the toilet paper when it reaches it’s halfway point.
+              This is represented by x.
+            </p>
+            <figure class="tp-image">
+              <img src="find_diameter.webp" alt="Area of Circle Equation" />
+              <figcaption>
+                I feel like it’s Thanksgiving with all this Pi.
+              </figcaption>
+            </figure>
+            <p>
+              I then move the formula around so I can get variable x (the length
+              of the diameter when half of the toilet paper is gone) all alone.
+            </p>
+            <figure class="tp-image">
+              <img src="final_equation.webp" alt="Area of Circle Equation" />
+              <figcaption>
+                What an obnoxiously large root. What does this equation think it
+                is, a turnip?
+              </figcaption>
+            </figure>
+          </div>
+        </section>
+      </div>
+      <div class="perforation"></div>
+      <div class="tp-content">
+        <section class="tp-section">
+          <div class="article-content">
+            <p>
+              And this is a pretty good equation to find the point in the toilet
+              paper roll in which half the toilet paper has been used. If you
+              want in in terms of a percentage instead of the length of
+              diameter, you can combine the above equation with the below
+              equation…
+            </p>
+            <figure class="tp-image">
+              <img src="support_equation.webp" alt="Area of Circle Equation" />
+              <figcaption>What a breath of fresh air</figcaption>
+            </figure>
+            <p>… to get this equation:</p>
+            <figure class="tp-image">
+              <img
+                src="percentage_equation.webp"
+                alt="Area of Circle Equation"
+              />
+              <figcaption>
+                Just remind yourself that letters can’t hurt you.
+              </figcaption>
+            </figure>
+          </div>
+        </section>
+      </div>
+      <div class="perforation"></div>
+      <div class="tp-content">
+        <section class="tp-section">
+          <div class="article-content">
+            <p>
+              And voila! You have defeated the scheming toilet paper with the
+              power of math, casting a fatal blow to its trickery, and can now
+              use this knowledge to have a more enlightened bathroom experience.
+            </p>
+            <figure class="tp-image">
+              <img
+                src="toilet_paper_knight.webp"
+                alt="Area of Circle Equation"
+              />
+              <figcaption>Become the toilet paper knight!</figcaption>
+            </figure>
+          </div>
+        </section>
+      </div>
+      <div class="perforation"></div>
+      <div class="tp-content">
+        <section class="tp-section">
+          <div class="article-content">
+            <p>
+              <strong>The shocking truth?</strong> When a toilet paper roll
+              looks half-empty, you've actually used about
+              <span style="color: #dc3545; font-size: 1.3em; font-weight: 700"
+                >63%</span
+              >
+              of the paper!
+            </p>
+
+            <p>
+              The true halfway point (50% remaining) appears much further from
+              the tube than you'd expect. Use the calculator below to expose the
+              lie for yourself!
+            </p>
+
+            <div class="bidet-note">
+              💡 <strong>Pro tip:</strong> ...or just use a bidet.
+            </div>
+
+            <div style="text-align: center; margin: 3rem 0">
+              <a href="#calculator" class="btn-primary-tp"
+                >Calculate Your Truth</a
+              >
             </div>
           </div>
-        </div>
+        </section>
+      </div>
+      <div class="perforation"></div>
+      <div class="tp-content">
+        <!-- Calculator Section -->
+        <section id="calculator" class="tp-section calculator">
+          <div class="calculator-header">
+            <h2>The Truth Calculator</h2>
+            <p style="color: #666">Find out how much you really have left</p>
+          </div>
+
+          <div class="tab-switcher">
+            <button class="tab-btn active" onclick="switchMode('forward')">
+              <i class="bi bi-calculator"></i> Find Diameter
+            </button>
+            <button class="tab-btn" onclick="switchMode('reverse')">
+              <i class="bi bi-arrow-left-right"></i> Find Percentage
+            </button>
+          </div>
+
+          <!-- Forward Calculator -->
+          <div id="forwardCalc" class="calculator-mode active">
+            <div class="calculator-layout">
+              <div class="calculator-inputs">
+                <div class="brand-preset">
+                  <label class="form-label">Quick Select Brand:</label>
+                  <select
+                    class="form-select"
+                    id="brandSelect"
+                    onchange="loadBrandPreset()"
+                  >
+                    <option value="">-- Select a brand --</option>
+                    <option value="charmin">Charmin Ultra Soft</option>
+                    <option value="cottonelle">Cottonelle Ultra Comfort</option>
+                    <option value="scotts">Scott 1000</option>
+                    <option value="angelsoft">Angel Soft</option>
+                    <option value="custom">Custom Measurements</option>
+                  </select>
+                </div>
+
+                <div class="percentage-slider">
+                  <label class="form-label"
+                    >% of toilet paper you want left:</label
+                  >
+                  <div class="percentage-display" id="percentDisplay">50%</div>
+                  <input
+                    type="range"
+                    id="percentSlider"
+                    min="1"
+                    max="100"
+                    value="50"
+                    oninput="updatePercentage()"
+                  />
+                  <div class="percentage-scale">
+                    <div class="scale-marker" id="scaleMarker"></div>
+                  </div>
+                  <div class="scale-labels">
+                    <span>Empty 😱</span>
+                    <span>Half 🤔</span>
+                    <span>Full 😌</span>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label"
+                    >Diameter of FULL toilet paper roll:</label
+                  >
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="fullDiameter"
+                    placeholder="e.g., 4.5 inches"
+                    step="0.01"
+                    oninput="updateLiveVisual()"
+                  />
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label"
+                    >Diameter of inner cardboard tube:</label
+                  >
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="tubeDiameter"
+                    placeholder="e.g., 1.5 inches"
+                    step="0.01"
+                    oninput="updateLiveVisual()"
+                  />
+                </div>
+
+                <button class="btn-calculate" onclick="calculateForward()">
+                  Reveal the Truth <i class="bi bi-arrow-right"></i>
+                </button>
+              </div>
+              <div class="calculator-visual">
+                <div class="visual-container">
+                  <h4>Live Preview</h4>
+                  <div class="tp-visual">
+                    <div
+                      class="tp-circle tp-full"
+                      id="tpFull"
+                      style="width: 220px; height: 220px"
+                    ></div>
+                    <div
+                      class="tp-circle tp-current"
+                      id="tpCurrent"
+                      style="width: 110px; height: 110px"
+                    ></div>
+                    <div
+                      class="tp-circle tp-tube"
+                      id="tpTube"
+                      style="width: 55px; height: 55px"
+                    ></div>
+                  </div>
+                  <p class="live-indicator">Updates as you adjust!</p>
+                </div>
+                <div
+                  id="forwardResult"
+                  class="result-box"
+                  style="display: none"
+                ></div>
+                <div
+                  id="forwardResult"
+                  class="result-box"
+                  style="display: none"
+                ></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reverse Calculator -->
+          <div id="reverseCalc" class="calculator-mode">
+            <div class="calculator-layout">
+              <div class="calculator-inputs">
+                <div class="brand-preset">
+                  <label class="form-label">Quick Select Brand:</label>
+                  <select
+                    class="form-select"
+                    id="brandSelectReverse"
+                    onchange="loadBrandPresetReverse()"
+                  >
+                    <option value="">-- Select a brand --</option>
+                    <option value="charmin">Charmin Ultra Soft</option>
+                    <option value="cottonelle">Cottonelle Ultra Comfort</option>
+                    <option value="scotts">Scott 1000</option>
+                    <option value="angelsoft">Angel Soft</option>
+                    <option value="custom">Custom Measurements</option>
+                  </select>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label"
+                    >Current diameter of toilet paper:</label
+                  >
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="currentDiameter"
+                    placeholder="e.g., 3.2 inches"
+                    step="0.01"
+                    oninput="updateLiveVisualReverse()"
+                  />
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label"
+                    >Diameter of FULL toilet paper roll:</label
+                  >
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="fullDiameterReverse"
+                    placeholder="e.g., 4.5 inches"
+                    step="0.01"
+                    oninput="updateLiveVisualReverse()"
+                  />
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label"
+                    >Diameter of inner cardboard tube:</label
+                  >
+                  <input
+                    type="number"
+                    class="form-control"
+                    id="tubeDiameterReverse"
+                    placeholder="e.g., 1.5 inches"
+                    step="0.01"
+                    oninput="updateLiveVisualReverse()"
+                  />
+                </div>
+
+                <button class="btn-calculate" onclick="calculateReverse()">
+                  Expose the Lies <i class="bi bi-arrow-right"></i>
+                </button>
+              </div>
+
+              <div class="calculator-visual">
+                <div class="visual-container">
+                  <h4>Live Preview</h4>
+                  <div class="tp-visual">
+                    <div
+                      class="tp-circle tp-full"
+                      id="tpFullReverse"
+                      style="width: 220px; height: 220px"
+                    ></div>
+                    <div
+                      class="tp-circle tp-current"
+                      id="tpCurrentReverse"
+                      style="width: 110px; height: 110px"
+                    ></div>
+                    <div
+                      class="tp-circle tp-tube"
+                      id="tpTubeReverse"
+                      style="width: 55px; height: 55px"
+                    ></div>
+                  </div>
+                  <p class="live-indicator">Updates as you adjust!</p>
+                </div>
+                <div
+                  id="reverseResult"
+                  class="result-box"
+                  style="display: none"
+                ></div>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
-  </main>
-  <!-- Footer -->
+    <!-- Footer -->
+    <footer class="footer">
+      <strong
+        ><p>
+          Made with 🧻 by
+          <a href="https://www.kylescheer.com" target="_blank">Kyle Scheer</a>
+        </p>
+        <p>
+          <a href="https://github.com/kyletscheer/toilet-paper" target="_blank"
+            >View Code on GitHub</a
+          >
+        </p></strong
+      >
+      <a
+        href="https://ko-fi.com/scheerapps"
+        target="_blank"
+        rel="noopener"
+        title="Support me on Ko-fi"
+      >
+        <img
+          height="36"
+          style="border: 0px; height: 36px"
+          src="https://storage.ko-fi.com/cdn/kofi5.png?v=6"
+          border="0"
+          alt="Buy Me a Coffee at ko-fi.com"
+        />
+      </a>
+    </footer>
 
-  <footer class="bg-white border-top py-4 mt-auto">
-    <div class="container">
-      <div class="d-flex justify-content-between align-items-center">
-        <div>
-          Made by <a href="https://www.kylescheer.com" target="_blank">Kyle Scheer</a>
-        </div>
-        <a href="https://github.com/kyletscheer/toilet-paper" target="_blank">View Code</a>
-      </div>
-    </div>
-  </footer>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
-  <script src="darkmode.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <script src="script.js"></script>
-</body>
+    <script>
+      const brandData = {
+        charmin: { full: 4.5, tube: 1.6 },
+        cottonelle: { full: 4.3, tube: 1.5 },
+        scotts: { full: 4.0, tube: 1.5 },
+        angelsoft: { full: 4.4, tube: 1.6 },
+      };
 
+      window.onload = function () {
+        updatePercentage();
+      };
+
+      function switchMode(mode) {
+        document
+          .querySelectorAll(".tab-btn")
+          .forEach((btn) => btn.classList.remove("active"));
+        document
+          .querySelectorAll(".calculator-mode")
+          .forEach((calc) => calc.classList.remove("active"));
+
+        if (mode === "forward") {
+          document
+            .querySelector(".tab-btn:first-child")
+            .classList.add("active");
+          document.getElementById("forwardCalc").classList.add("active");
+        } else {
+          document.querySelector(".tab-btn:last-child").classList.add("active");
+          document.getElementById("reverseCalc").classList.add("active");
+        }
+      }
+
+      function updatePercentage() {
+        const slider = document.getElementById("percentSlider");
+        const display = document.getElementById("percentDisplay");
+        const marker = document.getElementById("scaleMarker");
+
+        const value = slider.value;
+        display.textContent = value + "%";
+        marker.style.left = value + "%";
+
+        updateLiveVisual();
+      }
+
+      function updateLiveVisual() {
+        const percent =
+          parseFloat(document.getElementById("percentSlider").value) / 100;
+        const a = parseFloat(document.getElementById("fullDiameter").value);
+        const b = parseFloat(document.getElementById("tubeDiameter").value);
+
+        if (!a || !b || b >= a || percent <= 0) return;
+
+        const pi = Math.PI;
+        const diameter =
+          2 *
+          Math.sqrt(
+            ((pi * Math.pow(a / 2, 2) - pi * Math.pow(b / 2, 2)) /
+              (1 / percent) +
+              pi * Math.pow(b / 2, 2)) /
+              pi
+          );
+
+        updateVisual(a, diameter, b, "tpFull", "tpCurrent", "tpTube");
+      }
+
+      function updateLiveVisualReverse() {
+        const current = parseFloat(
+          document.getElementById("currentDiameter").value
+        );
+        const a = parseFloat(
+          document.getElementById("fullDiameterReverse").value
+        );
+        const b = parseFloat(
+          document.getElementById("tubeDiameterReverse").value
+        );
+
+        if (!current || !a || !b || b >= a || current > a || current <= b)
+          return;
+
+        updateVisual(
+          a,
+          current,
+          b,
+          "tpFullReverse",
+          "tpCurrentReverse",
+          "tpTubeReverse"
+        );
+      }
+
+      function loadBrandPreset() {
+        const brand = document.getElementById("brandSelect").value;
+        if (brand && brand !== "custom" && brandData[brand]) {
+          document.getElementById("fullDiameter").value = brandData[brand].full;
+          document.getElementById("tubeDiameter").value = brandData[brand].tube;
+          updateLiveVisual();
+        }
+      }
+
+      function loadBrandPresetReverse() {
+        const brand = document.getElementById("brandSelectReverse").value;
+        if (brand && brand !== "custom" && brandData[brand]) {
+          document.getElementById("fullDiameterReverse").value =
+            brandData[brand].full;
+          document.getElementById("tubeDiameterReverse").value =
+            brandData[brand].tube;
+          updateLiveVisualReverse();
+        }
+      }
+
+      function calculateForward() {
+        const y =
+          parseFloat(document.getElementById("percentSlider").value) / 100;
+        const a = parseFloat(document.getElementById("fullDiameter").value);
+        const b = parseFloat(document.getElementById("tubeDiameter").value);
+
+        if (!y || !a || !b) {
+          alert("Please fill in all fields!");
+          return;
+        }
+
+        if (b >= a) {
+          alert(
+            "Inner tube diameter must be smaller than full toilet paper diameter!"
+          );
+          return;
+        }
+
+        if (y <= 0 || y > 1) {
+          alert("Percentage must be between 0 and 1!");
+          return;
+        }
+
+        const pi = Math.PI;
+        const diameter =
+          2 *
+          Math.sqrt(
+            ((pi * Math.pow(a / 2, 2) - pi * Math.pow(b / 2, 2)) / (1 / y) +
+              pi * Math.pow(b / 2, 2)) /
+              pi
+          );
+        const distanceFromTube = (diameter - b) / 2;
+        const visualPercentage = (1 - (a - diameter) / (a - b)) * 100;
+
+        document.getElementById("forwardResult").innerHTML = `
+                <h4>🎯 The Truth Revealed!</h4>
+                <p>When you have <strong>${(y * 100).toFixed(
+                  1
+                )}%</strong> of your toilet paper left, the diameter should be <strong>${diameter.toFixed(
+          2
+        )} inches</strong>.</p>
+                <p>That's <strong>${distanceFromTube.toFixed(
+                  2
+                )} inches</strong> from the edge of the tube.</p>
+                <p>This looks like <strong>${visualPercentage.toFixed(
+                  1
+                )}%</strong> of the distance from cardboard to full roll.</p>
+                <p style="margin-top: 1rem; font-size: 0.9em;">😱 See? Your toilet paper was lying!</p>
+            `;
+        document.getElementById("forwardResult").style.display = "block";
+
+        updateVisual(a, diameter, b, "tpFull", "tpCurrent", "tpTube");
+      }
+
+      function calculateReverse() {
+        const current = parseFloat(
+          document.getElementById("currentDiameter").value
+        );
+        const a = parseFloat(
+          document.getElementById("fullDiameterReverse").value
+        );
+        const b = parseFloat(
+          document.getElementById("tubeDiameterReverse").value
+        );
+
+        if (!current || !a || !b) {
+          alert("Please fill in all fields!");
+          return;
+        }
+
+        if (b >= a || current > a || current <= b) {
+          alert(
+            "Check your measurements! Make sure: tube < current < full diameter"
+          );
+          return;
+        }
+
+        const pi = Math.PI;
+        const currentArea = pi * Math.pow(current / 2, 2);
+        const tubeArea = pi * Math.pow(b / 2, 2);
+        const fullArea = pi * Math.pow(a / 2, 2);
+
+        const paperArea = currentArea - tubeArea;
+        const totalPaperArea = fullArea - tubeArea;
+        const percentRemaining = (paperArea / totalPaperArea) * 100;
+        const visualPercentage = (1 - (a - current) / (a - b)) * 100;
+
+        document.getElementById("reverseResult").innerHTML = `
+                <h4>😱 The Shocking Truth!</h4>
+                <p>With a current diameter of <strong>${current.toFixed(
+                  2
+                )} inches</strong>, you have <strong>${percentRemaining.toFixed(
+          1
+        )}%</strong> of your toilet paper remaining!</p>
+                <p>It visually appears to be at <strong>${visualPercentage.toFixed(
+                  1
+                )}%</strong> of the distance from cardboard to full roll.</p>
+                <p style="margin-top: 1rem; font-size: 0.9em;">${
+                  percentRemaining < 30
+                    ? "🚨 Time to panic-buy!"
+                    : percentRemaining < 50
+                    ? "⚠️ Getting low..."
+                    : "✅ You're good for now!"
+                }</p>
+            `;
+        document.getElementById("reverseResult").style.display = "block";
+
+        updateVisual(
+          a,
+          current,
+          b,
+          "tpFullReverse",
+          "tpCurrentReverse",
+          "tpTubeReverse"
+        );
+      }
+
+      function updateVisual(
+        fullDiam,
+        currentDiam,
+        tubeDiam,
+        fullId,
+        currentId,
+        tubeId
+      ) {
+        const maxSize = 220;
+        const fullSize = maxSize;
+        const currentSize = (currentDiam / fullDiam) * maxSize;
+        const tubeSize = (tubeDiam / fullDiam) * maxSize;
+
+        document.getElementById(fullId).style.width = fullSize + "px";
+        document.getElementById(fullId).style.height = fullSize + "px";
+
+        document.getElementById(currentId).style.width = currentSize + "px";
+        document.getElementById(currentId).style.height = currentSize + "px";
+
+        document.getElementById(tubeId).style.width = tubeSize + "px";
+        document.getElementById(tubeId).style.height = tubeSize + "px";
+      }
+
+      // Smooth scrolling
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener("click", function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute("href"));
+          if (target) {
+            target.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        });
+      });
+    </script>
+  </body>
 </html>
